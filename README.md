@@ -1,8 +1,8 @@
-#**Behavioral Cloning**
+# **Behavioral Cloning**
 
-##Writeup Template
+## Writeup Template
 
-###You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
+### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
 
 ---
 
@@ -24,12 +24,12 @@ The goals / steps of this project are the following:
 [image4]: ./examples/pre-processed_img.png "Augmentation of Image"
 
 ## Rubric Points
-###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
+### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
 
 ---
-###Files Submitted & Code Quality
+### Files Submitted & Code Quality
 
-####1. Submission includes all required files and can be used to run the simulator in autonomous mode
+#### 1. Submission includes all required files and can be used to run the simulator in autonomous mode
 
 My project includes the following files:
 * model.py containing the script to create and train the model. The model_project-3.ipynb file contains the overall work flow  of this project. Major parts include loading the images, preprocessing the images(cropping and color channel conversion), data augmentation (flipping of images, combining 3 cameras center/left/right) and addressing the imbalance of training data.
@@ -40,44 +40,44 @@ My project includes the following files:
 * writeup_report.md summarizing the results
 * video.mp4 as the recorded video of my model running on the simulator
 
-####2. Submission includes functional code
+#### 2. Submission includes functional code
 Using the Udacity provided simulator and my drive.py file, the car can be driven autonomously around the track by executing
 ```sh
 python drive.py model.h5
 ```
 
-####3. Submission code is usable and readable
+#### 3. Submission code is usable and readable
 
 The model_project-3.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works.
 
-###Model Architecture and Training Strategy
+### Model Architecture and Training Strategy
 
-####1. An appropriate model architecture has been employed
+#### 1. An appropriate model architecture has been employed
 
 My model consists of a convolution neural network based on the Nvidia autonomous driving model. The model takes images with RGB channels as input, and has 5 convolutional layers (3 using 5*5 convolutional filters and 2 using 3*3 convolutional filters) followed by 4 fully connected layers. Please refer to the python notebook file for further references. The model used "RELU" (rectified linear unit) as the activation function so as to introduce nonlinearity, and the data is normalized and re-centered in the model using a Keras lambda layer like:
 ```sh
 model.add(Lambda(lambda X_train: (X_train - 128)/255.0, input_shape = (160, 320, 3)))
 ```
 
-####2. Attempts to reduce overfitting in the model
+#### 2. Attempts to reduce overfitting in the model
 
 The model contains dropout layers in order to reduce overfitting. During the tuning and testing of the network architecture, both dropout layers and max pooling layers are implemented after each convolution layer, and dropout layers are also inserted after the fully connected layers. In practice, it is found that the model appears to work fine without too much overfitting (but could suffer underfitting) if the run of training is limited to 3-6 epochs. Therefore I have decided to turn off the dropouts and MaxPooling for the time being, and just use the model's parameters after 5 epochs before the model started to suffer from overfitting.
 
 The model was trained and validated on different data sets to ensure that the model was not overfitting. The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
-####3. Model parameter tuning
+#### 3. Model parameter tuning
 
 The model used an adam optimizer, so the learning rate was not tuned manually.
 
-####4. Appropriate training data
+#### 4. Appropriate training data
 
 I started with the data from Udacity, and then later on also tried to collect data from my end especially regarding the recovery data. But apparently my own data does not help at all in terms of addressing the imbalanced training data(over concentrated at steer angle == 0 ). After all, my control of the car using keyboard is far from smooth.  So after about struggling on the collection of training data for almost 3 weeks, I have decided to return to the Udacity data and focused on data augmentation and tweak the distribution of input data.
 
 For details about how I obtained an appropriate training data, see the next section.
 
-###Model Architecture and Training Strategy
+### Model Architecture and Training Strategy
 
-####1. Solution Design Approach
+#### 1. Solution Design Approach
 In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set (80/20 ratio).
 
 My first step was to use a one layer neural network model similar to the multi-variable linear regression. The idea is that steering angle should be a number between (-max_steerAngle, +max_SteerAngle), so the last layer right before the output could be like linear regression. My car did not survive long on the track ...
@@ -86,7 +86,7 @@ But this is pretty much expected. Evidently, the correlation between input image
 When running LeNet, I found that the loss function of the model did not keep decreasing within a few epochs. It looks like there is currently a high bias issue (underfitting), both training and validation loss function being high.
 
 
-####2. Final Model Architecture
+#### 2. Final Model Architecture
 So I decided to use a more complexed network, with more convolution layers and also more fully connected layers. So I learned from the Nvidia autonomous driving's network according to their published paper, and turn off all the dropout and MaxPooling to see if this model is capable of overfitting. The final model architecture consisted of a convolution neural network with the following layers and layer sizes:
 
 Here is a outline of the architecture (picture from the Nvidia paper)
@@ -97,7 +97,7 @@ Note that Nvidia has an input image size of (66, 200), but mine is (160, 320). I
 
 
 
-####3. Preprocessing of the Training Set & Training Process
+#### 3. Preprocessing of the Training Set & Training Process
 
 The most critical issue to address for this project, based on my experience, is the imbalanced data with more than 70% data points having steering angle == 0.0. With such a concentrated distribution, the model will naturally predict well on straight roads and lack accuracy on sharp turns.
 Therefore preprocessing and re-arranging the training data is crucial. A straightforward way of reducing the imbalance is to use only a subset/fraction of all the zero steering angle data points. After tuning the subset size, I ended up using 25% of all zero steering points via the mod (%) operator together with all the nonzero data points:
